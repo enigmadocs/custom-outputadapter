@@ -1,0 +1,53 @@
+dependencies:
+ 'lib.my_output_adapter': 'my_output_adapter'
+
+extract:
+#   - step: Download the data via HTTP
+#     action: extract.source.http.DownloadFiles
+#     fetch:
+#       - "https://raw.githubusercontent.com/enigmadocs/custom-emitters/master/input.csv"
+
+# transform:
+#   - step: Set Schema
+#     action: schema.SetSchema
+#     fields:
+#       - name: name
+#         type: string
+#       - name: address
+#         type: string
+#       - name: city
+#         type: string
+#       - name: state
+#         type: string
+#       - name: zip
+#         type: string
+#       - name: country
+#         type: string
+
+  - step: Send the path for the local file to the next step
+    action: extract.emit.EmitPaths
+    paths:
+      - table1.csv
+
+  - step: Extract fields from CSV file
+    action: extract.formats.CSV.ReadRecords
+
+transform:
+  - step: Set table schema
+    action: transform.schema.SetSchema
+    scope: record
+    fields:
+      - name: id
+        type: integer
+      - name: firstname
+        type: string
+      - name: lastname
+        type: string
+
+  - step:
+    action: debug.Breakpoint
+
+load:
+  - step: Output a CSV with custom adapter
+    action: my_output_adapter.MyPipeOutputAdapter
+    repository: addresses
